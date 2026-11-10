@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Practice Corner - Student Quiz & Self-Assessment Portal</title>
+  
+  <!-- Google Fonts for Modern Slate Typography -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- Main Stylesheet -->
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <!-- ========================================================
+       TOP HEADER & NAVIGATION BAR
+       Accessible, responsive header with logo, nav links & theme toggle
+       ======================================================== -->
+  <header class="site-header">
+    <div class="container header-inner">
+      <!-- Brand Logo -->
+      <a href="#home" class="brand-logo nav-link" data-view="home" aria-label="Practice Corner Home">
+        <div class="brand-icon">P</div>
+        <div>
+          <span class="brand-text">Practice Corner</span>
+          <span class="brand-badge">Student Edition</span>
+        </div>
+      </a>
+
+      <!-- Main Navigation Links -->
+      <nav class="site-nav" aria-label="Main Navigation">
+        <a href="#home" class="nav-link active" data-view="home">Home</a>
+        <a href="#subjects" class="nav-link" data-view="subjects">Subjects</a>
+        <a href="#history" class="nav-link" data-view="history">Study Logs</a>
+      </nav>
+
+      <!-- Theme Mode Toggle Button -->
+      <div class="header-actions">
+        <button type="button" id="theme-toggle-btn" class="theme-toggle-btn" aria-label="Toggle Dark and Light Mode">
+          🌙 <span class="theme-label">Dark Mode</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- ========================================================
+       MAIN APP CONTAINER (Single-Page View Routing)
+       ======================================================== -->
+  <main class="main-content">
+    <div class="container">
+
+      <!-- ====================================================
+           VIEW 1: HOME DASHBOARD
+           ==================================================== -->
+      <section id="view-home" class="view-section">
+        <!-- Hero Banner -->
+        <div class="hero-card">
+          <div class="hero-pill">🎯 CA1 Project & Exam Self-Assessment</div>
+          <h1 class="hero-title">Practice that feels like a quiet study desk.</h1>
+          <p class="hero-subtitle">
+            Test yourself on core academic subjects. Receive instant score feedback, detailed answer explanations, and track your progress locally without any database or login hassle.
+          </p>
+          <div class="hero-actions">
+            <button type="button" class="btn btn-primary btn-lg" onclick="navigateToView('subjects')">
+              Start Practicing &rarr;
+            </button>
+            <button type="button" class="btn btn-secondary btn-lg" onclick="navigateToView('history')">
+              View Study Logs
+            </button>
+          </div>
+        </div>
+
+        <!-- Real-time Stats Grid (Calculated from LocalStorage) -->
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-icon">📚</div>
+            <div class="stat-info">
+              <div id="home-subject-count" class="stat-number">6</div>
+              <div class="stat-label">Available Subjects</div>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon">📝</div>
+            <div class="stat-info">
+              <div id="home-total-attempts" class="stat-number">0</div>
+              <div class="stat-label">Total Quizzes Taken</div>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon">📊</div>
+            <div class="stat-info">
+              <div id="home-avg-score" class="stat-number">0%</div>
+              <div class="stat-label">Average Accuracy</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Project Highlights / Problem-Solving Features -->
+        <h2 class="features-section-title">Why Practice Corner?</h2>
+        <div class="features-grid">
+          <div class="feature-box">
+            <div class="feature-icon-circle">⚡</div>
+            <h4>One Question at a Time</h4>
+            <p>Distraction-free interface with keyboard shortcuts (1-4, Enter) and smooth countdown timers.</p>
+          </div>
+          <div class="feature-box">
+            <div class="feature-icon-circle">💡</div>
+            <h4>Instant Explanations</h4>
+            <p>Every session concludes with a detailed scorecard explaining why each correct answer is right.</p>
+          </div>
+          <div class="feature-box">
+            <div class="feature-icon-circle">🔒</div>
+            <h4>Offline &amp; Private</h4>
+            <p>Zero external servers or databases. Your practice logs are safely stored in your browser's LocalStorage.</p>
+          </div>
+        </div>
+
+        <!-- Recent Study Logs Preview -->
+        <div class="recent-study-card">
+          <div class="recent-study-header">
+            <h3>Recent Quiz Attempts</h3>
+            <button type="button" class="btn btn-outline" style="padding: 6px 14px; font-size: 13px;" onclick="navigateToView('history')">
+              View All History &rarr;
+            </button>
+          </div>
+          <ul id="home-recent-list" class="recent-log-list">
+            <li class="no-records-item">Loading records...</li>
+          </ul>
+        </div>
+      </section>
+
+
+      <!-- ====================================================
+           VIEW 2: SUBJECTS SELECTION GRID
+           ==================================================== -->
+      <section id="view-subjects" class="view-section hidden-view">
+        <div class="section-header">
+          <h1 class="section-title">Pick a Subject to Practice</h1>
+          <p class="section-desc">Select a topic below to customize your session length and begin your quiz.</p>
+        </div>
+
+        <!-- Dynamic Subjects Grid (Injected by JS) -->
+        <div id="subjects-grid" class="subjects-grid" aria-label="Subjects List">
+          <!-- Populated by renderSubjects() -->
+        </div>
+      </section>
+
+
+      <!-- ====================================================
+           VIEW 3: ACTIVE QUIZ SESSION
+           ==================================================== -->
+      <section id="view-quiz" class="view-section hidden-view narrow-container">
+        <!-- Top Meta Bar -->
+        <div class="quiz-top-bar">
+          <span id="quiz-subject-badge" class="quiz-badge">Subject Loading...</span>
+          <div class="quiz-meta-right">
+            <div id="quiz-timer-box" class="quiz-timer-box" title="Question Countdown">
+              ⏱ <span id="quiz-timer-seconds">30s</span>
+            </div>
+            <span id="quiz-progress-text" class="quiz-progress-text">Question 1 of 5</span>
+          </div>
+        </div>
+
+        <!-- Visual Progress Bar -->
+        <div class="progress-track" role="progressbar" aria-valuemin="0" aria-valuemax="100">
+          <div id="quiz-progress-bar" class="progress-fill"></div>
+        </div>
+
+        <!-- Question & Options Card -->
+        <div class="question-container">
+          <h2 id="question-text" class="question-text">
+            Loading question text...
+          </h2>
+
+          <div id="options-list" class="options-list" role="radiogroup" aria-label="Question options">
+            <!-- Dynamic options injected here -->
+          </div>
+
+          <p class="kbd-shortcut-hint">
+            💡 Pro-Tip: Press keys <strong>1-4</strong> or <strong>A-D</strong> to pick an option, and <strong>Enter</strong> for next.
+          </p>
+        </div>
+
+        <!-- Quiz Footer Controls -->
+        <div class="quiz-footer-actions">
+          <button type="button" id="quit-quiz-btn" class="btn btn-secondary">
+            &larr; Exit Quiz
+          </button>
+          <button type="button" id="next-question-btn" class="btn btn-primary btn-lg" disabled>
+            Next Question &rarr;
+          </button>
+        </div>
+      </section>
+
+
+      <!-- ====================================================
+           VIEW 4: RESULTS & SCORECARD REVIEW
+           ==================================================== -->
+      <section id="view-results" class="view-section hidden-view narrow-container">
+        <!-- Score Summary Card -->
+        <div class="results-card">
+          <span id="results-subject-badge" class="results-subject-tag">Subject</span>
+          <h2 style="font-family: var(--font-heading); font-size: 28px; margin-bottom: 6px;">Quiz Completed!</h2>
+
+          <!-- Giant Score Display -->
+          <div class="score-display-wrapper">
+            <div id="results-score-text" class="score-big-number">0 / 0</div>
+            <div id="results-percentage" class="score-percentage-text">0% Accuracy</div>
+          </div>
+
+          <p id="results-performance-msg" class="performance-msg">
+            Evaluating performance...
+          </p>
+
+          <!-- Metrics summary row -->
+          <div class="results-stats-row">
+            <div class="res-stat-pill pill-correct">
+              ✓ Correct: <strong id="stat-correct-count">0</strong>
+            </div>
+            <div class="res-stat-pill pill-wrong">
+              ✗ Wrong: <strong id="stat-wrong-count">0</strong>
+            </div>
+            <div class="res-stat-pill">
+              ⏱ Time: <strong id="stat-time-taken">0s</strong>
+            </div>
+            <div class="res-stat-pill">
+              🎯 Rate: <strong id="stat-accuracy-rate">0%</strong>
+            </div>
+          </div>
+
+          <!-- Action Buttons -->
+          <div class="results-actions">
+            <button type="button" id="retake-quiz-btn" class="btn btn-primary">
+              Try Again &#8634;
+            </button>
+            <button type="button" class="btn btn-secondary" onclick="navigateToView('subjects')">
+              Choose Another Subject &rarr;
+            </button>
+            <button type="button" class="btn btn-outline" onclick="navigateToView('history')">
+              View Study Log
+            </button>
+          </div>
+        </div>
+
+        <!-- Detailed Review Section -->
+        <div class="review-section-header">
+          <h3 class="review-section-title">Answer Key &amp; Concept Review</h3>
+          <p class="review-section-desc">Review each question below to understand the reasoning behind the correct answers.</p>
+        </div>
+
+        <!-- Review items container -->
+        <div id="review-list-container" class="review-list">
+          <!-- Populated by renderResultsReview() -->
+        </div>
+      </section>
+
+
+      <!-- ====================================================
+           VIEW 5: STUDY LOGS & ATTEMPT HISTORY
+           ==================================================== -->
+      <section id="view-history" class="view-section hidden-view">
+        <div class="history-header">
+          <div>
+            <h1 class="section-title" style="text-align: left;">Your Study History</h1>
+            <p class="section-desc" style="text-align: left; margin: 0;">
+              All previous quiz attempts are preserved in your browser's local memory.
+            </p>
+          </div>
+          <button type="button" id="clear-history-btn" class="btn btn-danger">
+            Clear All History
+          </button>
+        </div>
+
+        <!-- History Table -->
+        <div class="table-responsive-wrapper">
+          <table class="history-table">
+            <thead>
+              <tr>
+                <th>Subject</th>
+                <th>Date &amp; Time</th>
+                <th>Score</th>
+                <th>Percentage</th>
+                <th>Duration</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody id="history-table-body">
+              <!-- Dynamically populated -->
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Empty history placeholder -->
+        <div id="history-empty-notice" class="empty-history-box" style="display: none;">
+          <p>No quiz attempts found yet! Complete a quiz to view your study logs.</p>
+          <button type="button" class="btn btn-primary" onclick="navigateToView('subjects')">
+            Go to Subjects &rarr;
+          </button>
+        </div>
+      </section>
+
+    </div>
+  </main>
+
+
+  <!-- ========================================================
+       SESSION SETUP MODAL
+       Allows selecting question count & timer before starting
+       ======================================================== -->
+  <div id="quiz-setup-modal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="modal-subject-title">
+    <div class="modal-content">
+      <h2 id="modal-subject-title" class="modal-title">Practice Subject</h2>
+      <p id="modal-subject-desc" class="modal-subtitle">Configure your practice session parameters.</p>
+
+      <div class="modal-section-label">Select Number of Questions:</div>
+      <div class="count-options-grid">
+        <button type="button" class="count-pill-btn active" data-count="5">5 Questions</button>
+        <button type="button" class="count-pill-btn" data-count="10">10 Questions</button>
+        <button type="button" class="count-pill-btn" data-count="12">12 Questions</button>
+      </div>
+
+      <div class="timer-option-row">
+        <label for="modal-timer-toggle">Enable 30-Second Question Timer</label>
+        <input type="checkbox" id="modal-timer-toggle" class="timer-toggle-input" checked>
+      </div>
+
+      <div class="modal-actions">
+        <button type="button" id="modal-close-btn" class="btn btn-secondary">Cancel</button>
+        <button type="button" id="modal-start-btn" class="btn btn-primary">Start Quiz &rarr;</button>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ========================================================
+       FOOTER
+       ======================================================== -->
+  <footer class="site-footer">
+    <div class="container">
+      <p>
+        <strong>Practice Corner</strong> &mdash; Continuous Assessment (CA1) Team Project.
+      </p>
+      <p style="margin-top: 4px; font-size: 13px;">
+        Built with semantic HTML5, modern CSS3 &amp; vanilla JavaScript. No database required.
+      </p>
+    </div>
+  </footer>
+
+  <!-- ========================================================
+       JAVASCRIPT SCRIPTS
+       1. Question Bank Data
+       2. Application Logic & State Controller
+       ======================================================== -->
+  <script src="js/questions.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
